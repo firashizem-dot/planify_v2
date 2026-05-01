@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OptaPlanner solver configuration for Planify timetable generation.
+  Uses First Fit Decreasing construction heuristic followed by Tabu Search.
+-->
+<solver xmlns="https://www.optaplanner.org/xsd/solver"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://www.optaplanner.org/xsd/solver
+                            https://www.optaplanner.org/xsd/solver/solver.xsd">
+
+    <solutionClass>com.planify.optaplanner.domain.TimeTable</solutionClass>
+    <entityClass>com.planify.optaplanner.domain.Lesson</entityClass>
+
+    <!-- Score calculation via Constraint Streams -->
+    <scoreDirectorFactory>
+        <constraintProviderClass>com.planify.optaplanner.constraints.TimeTableConstraintProvider</constraintProviderClass>
+    </scoreDirectorFactory>
+
+    <!-- Phase 1: Construction Heuristic (builds initial feasible solution) -->
+    <constructionHeuristic>
+        <constructionHeuristicType>FIRST_FIT</constructionHeuristicType>
+    </constructionHeuristic>
+
+    <!-- Phase 2: Local Search optimization (Tabu Search by default) -->
+    <localSearch>
+        <termination>
+            <secondsSpentLimit>30</secondsSpentLimit>
+        </termination>
+        <localSearchType>TABU_SEARCH</localSearchType>
+    </localSearch>
+
+</solver>

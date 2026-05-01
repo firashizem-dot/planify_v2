@@ -1,0 +1,46 @@
+# Environment
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.*
+!**/.env.example
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+frontend/.vercel/
+**/node_modules/
+**/.next/
+
+# Backend
+backend/target/
+backend/*.jar
+**/target/
+
+# Tooling / caches
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Docker
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+
+#extra 
+cahier_de_charge.tex
+planify_logo.png

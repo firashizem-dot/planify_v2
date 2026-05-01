@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --background: 250 255 239;
+    --foreground: 26 26 46;
+    --card: 255 255 255;
+    --card-foreground: 26 26 46;
+    --popover: 255 255 255;
+    --popover-foreground: 26 26 46;
+    --primary: 235 119 94;
+    --primary-foreground: 255 255 255;
+    --secondary: 254 255 239;
+    --secondary-foreground: 26 26 46;
+    --muted: 244 244 244;
+    --muted-foreground: 107 114 128;
+    --accent: 235 119 94;
+    --accent-foreground: 255 255 255;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    --border: 229 231 235;
+    --input: 249 250 251;
+    --ring: 235 119 94;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  .planify-card {
+    @apply bg-white rounded-xl shadow-card border border-gray-100 p-6;
+  }
+
+  .planify-btn-primary {
+    @apply bg-primary-500 hover:bg-primary-600 text-white font-medium px-4 py-2 rounded-lg
+           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .planify-btn-outline {
+    @apply border border-primary-500 text-primary-500 hover:bg-primary-50 font-medium px-4 py-2 rounded-lg
+           transition-all duration-200;
+  }
+
+  .planify-badge-ci {
+    @apply bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .planify-badge-td {
+    @apply bg-emerald-100 text-emerald-700 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+  .planify-badge-tp {
+    @apply bg-violet-100 text-violet-700 text-xs font-medium px-2 py-0.5 rounded-full;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-gray-100; }
+::-webkit-scrollbar-thumb { @apply bg-gray-300 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-primary-400; }
+
+/* Timetable grid */
+.timetable-grid {
+  display: grid;
+  grid-template-columns: 80px repeat(6, 1fr);
+  gap: 1px;
+  background: #E5E7EB;
+  border: 1px solid #E5E7EB;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.timetable-cell {
+  @apply bg-white p-2 min-h-[80px] relative;
+}
+
+.timetable-header {
+  @apply bg-primary-50 font-semibold text-primary-700 text-center py-3 text-sm;
+}
+
+.timetable-time {
+  @apply bg-gray-50 text-gray-500 text-xs font-medium flex items-start justify-end pr-2 pt-2;
+}
+
+.lesson-card {
+  @apply absolute inset-1 rounded-lg p-2 text-xs font-medium cursor-pointer
+         transition-all duration-200 hover:shadow-md hover:scale-[1.02];
+}
