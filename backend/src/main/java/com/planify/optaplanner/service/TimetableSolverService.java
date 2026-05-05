@@ -21,7 +21,10 @@ import com.planify.optaplanner.constraints.TimeTableConstraintProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 /**
  * Orchestrates the full OptaPlanner solve pipeline:
@@ -40,6 +43,7 @@ public class TimetableSolverService {
     private final TimeSlotRepository timeSlotRepository;
     private final ScheduleRepository scheduleRepository;
     private final ScheduleSessionRepository sessionRepository;
+    private final ProfessorPreferenceRepository preferenceRepository;
 
     /**
      * Full solve pipeline: builds the problem, runs OptaPlanner, persists results.
@@ -53,8 +57,10 @@ public class TimetableSolverService {
         List<TimeSlot> timeSlots = timeSlotRepository.findByDepartmentIdOrderByDayOfWeekAscStartTimeAsc(dept.getId());
         List<Classroom> classrooms = classroomRepository.findAll();
         List<Professor> professors = professorRepository.findByDepartmentIdWithDetails(dept.getId());
-        List<Subject> subjects = subjectRepository.findByDepartmentId(dept.getId());
-        List<StudentGroup> groups = groupRepository.findByDepartmentId(dept.getId());
+        List<Subject> subjects = subjectRepository.findByDepartmentIdAndSemesterOrNull(dept.getId(), request.getSemester());
+        List<StudentGroup> groups = (request.getLevel() != null && !request.getLevel().isBlank())
+                ? groupRepository.findByDepartmentIdAndLevel(dept.getId(), request.getLevel())
+                : groupRepository.findByDepartmentId(dept.getId());
 
         if (timeSlots.isEmpty()) throw new BadRequestException("No time slots defined for department");
         if (classrooms.isEmpty()) throw new BadRequestException("No classrooms available");
@@ -62,8 +68,17 @@ public class TimetableSolverService {
         if (subjects.isEmpty()) throw new BadRequestException("No subjects in department");
         if (groups.isEmpty()) throw new BadRequestException("No student groups in department");
 
+        // Load professor preferences (avoided timeslots)
+        Map<Long, Set<Long>> professorAvoidedSlots = professors.stream()
+                .collect(Collectors.toMap(
+                        Professor::getId,
+                        p -> preferenceRepository.findByProfessorId(p.getId()).stream()
+                                .map(pref -> pref.getTimeSlot().getId())
+                                .collect(Collectors.toSet())
+                ));
+
         // Build lessons (one lesson per subject per group, per hour defined)
-        List<Lesson> lessons = buildLessons(subjects, professors, groups);
+        List<Lesson> lessons = buildLessons(subjects, professors, groups, professorAvoidedSlots);
         log.info("Built {} lessons for department {}", lessons.size(), dept.getName());
 
         // Create OptaPlanner problem
@@ -91,15 +106,17 @@ public class TimetableSolverService {
      * Each subject needs sessions based on its hours-per-week.
      */
     private List<Lesson> buildLessons(List<Subject> subjects, List<Professor> professors,
-                                       List<StudentGroup> groups) {
+                                       List<StudentGroup> groups,
+                                       Map<Long, Set<Long>> professorAvoidedSlots) {
         List<Lesson> lessons = new ArrayList<>();
         AtomicLong idGen = new AtomicLong(1);
 
-        for (Subject subject : subjects) {
-            // Find professors who teach this subject
+        for (int si = 0; si < subjects.size(); si++) {
+            Subject subject = subjects.get(si);
             List<Professor> subjectProfessors = professors.stream()
                     .filter(p -> p.getSubjects().stream()
                             .anyMatch(s -> s.getId().equals(subject.getId())))
+                    .sorted(java.util.Comparator.comparing(Professor::getId))
                     .toList();
 
             if (subjectProfessors.isEmpty()) {
@@ -107,22 +124,25 @@ public class TimetableSolverService {
                 continue;
             }
 
-            Professor assignedProf = subjectProfessors.get(0);
-
-            // Determine number of sessions per week (1.5h per session)
             int sessionsPerWeek = Math.max(1, (int) Math.ceil(
                     subject.getHoursPerWeek().doubleValue() / 1.5));
 
+            int gi = 0;
             for (StudentGroup group : groups) {
-                // Only assign if group level matches subject level
                 if (subject.getLevel() != null && group.getLevel() != null
                         && !subject.getLevel().equals(group.getLevel())) {
                     continue;
                 }
 
+                // Rotate professors across groups: offset by subject index so that
+                // different subjects get different professor-to-group pairings.
+                Professor assignedProf = subjectProfessors.get((si + gi) % subjectProfessors.size());
+                Set<Long> avoidedSlots = professorAvoidedSlots.getOrDefault(assignedProf.getId(), Set.of());
+
                 for (int i = 0; i < sessionsPerWeek; i++) {
-                    lessons.add(new Lesson(idGen.getAndIncrement(), subject, assignedProf, group));
+                    lessons.add(new Lesson(idGen.getAndIncrement(), subject, assignedProf, group, avoidedSlots));
                 }
+                gi++;
             }
         }
         return lessons;

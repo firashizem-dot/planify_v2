@@ -47,6 +47,10 @@ public class Professor {
     @Builder.Default
     private Set<ProfessorAvailability> availabilities = new HashSet<>();
 
+    @OneToMany(mappedBy = "professor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private Set<ProfessorPreference> preferences = new HashSet<>();
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

@@ -50,8 +50,8 @@ export default function TimeSlotsPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-          {DAYS_ORDER.slice(0, 5).map(day => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          {DAYS_ORDER.map(day => (
             <div key={day} className="planify-card">
               <h3 className="font-semibold text-gray-800 mb-3 text-sm text-center">{DAY_LABELS[day]}</h3>
               <div className="space-y-1.5">

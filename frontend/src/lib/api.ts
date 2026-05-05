@@ -63,6 +63,11 @@ export const professorApi = {
   create: (data: unknown) => api.post('/api/professors', data),
   update: (id: number, data: unknown) => api.put(`/api/professors/${id}`, data),
   delete: (id: number) => api.delete(`/api/professors/${id}`),
+  getPreferences: (id: number) => api.get(`/api/professors/${id}/preferences`),
+  addPreference: (id: number, timeSlotId: number) =>
+    api.post(`/api/professors/${id}/preferences/${timeSlotId}`),
+  removePreference: (id: number, timeSlotId: number) =>
+    api.delete(`/api/professors/${id}/preferences/${timeSlotId}`),
 };
 
 // Subjects

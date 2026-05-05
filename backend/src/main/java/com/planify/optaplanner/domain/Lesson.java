@@ -13,6 +13,9 @@ import org.optaplanner.core.api.domain.entity.PlanningEntity;
 import org.optaplanner.core.api.domain.lookup.PlanningId;
 import org.optaplanner.core.api.domain.variable.PlanningVariable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * PlanningEntity: represents one lesson/session to be scheduled.
  * OptaPlanner will assign a timeSlot and a classroom to each Lesson.
@@ -31,6 +34,7 @@ public class Lesson {
     private Subject subject;
     private Professor professor;
     private StudentGroup studentGroup;
+    private Set<Long> avoidedTimeSlotIds = new HashSet<>();
 
     /** Planning variables - OptaPlanner assigns these. */
     @PlanningVariable(valueRangeProviderRefs = "timeSlotRange")
@@ -44,6 +48,14 @@ public class Lesson {
         this.subject = subject;
         this.professor = professor;
         this.studentGroup = studentGroup;
+    }
+
+    public Lesson(Long id, Subject subject, Professor professor, StudentGroup studentGroup, Set<Long> avoidedTimeSlotIds) {
+        this.id = id;
+        this.subject = subject;
+        this.professor = professor;
+        this.studentGroup = studentGroup;
+        this.avoidedTimeSlotIds = avoidedTimeSlotIds != null ? avoidedTimeSlotIds : new HashSet<>();
     }
 
     @Override

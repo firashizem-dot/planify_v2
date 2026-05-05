@@ -8,9 +8,9 @@ import java.util.Set;
 @Data
 public class ProfessorDto {
     private Long id;
-    @NotNull
     private Long userId;
     private String email;
+    private String password;
     private String firstName;
     private String lastName;
     @NotNull

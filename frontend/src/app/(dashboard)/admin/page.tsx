@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Users, Building2, GraduationCap, BarChart3, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import Header from "@/components/layout/Header";
 import { adminApi } from "@/lib/api";
 
@@ -55,13 +56,13 @@ export default function AdminDashboard() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
               { label: "Gérer les chefs de département", href: "/admin/department-heads", color: "bg-primary-500" },
-              { label: "Voir tous les départements", href: "/admin/departments", color: "bg-blue-500" },
-              { label: "Configuration système", href: "/profile", color: "bg-gray-600" },
+              { label: "Gérer les départements", href: "/admin/departments", color: "bg-blue-500" },
+              { label: "Mon profil", href: "/profile", color: "bg-gray-600" },
             ].map(({ label, href, color }) => (
-              <a key={href} href={href}
+              <Link key={href} href={href}
                 className={`${color} text-white rounded-xl p-4 text-sm font-medium hover:opacity-90 transition-opacity`}>
                 {label}
-              </a>
+              </Link>
             ))}
           </div>
         </div>

@@ -40,6 +40,9 @@ public class Subject {
     @Column(length = 100)
     private String level;
 
+    @Column(length = 10)
+    private String semester;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 

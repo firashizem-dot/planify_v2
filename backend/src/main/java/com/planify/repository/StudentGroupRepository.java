@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface StudentGroupRepository extends JpaRepository<StudentGroup, Long> {
     List<StudentGroup> findByDepartmentId(Long departmentId);
+    List<StudentGroup> findByDepartmentIdAndLevel(Long departmentId, String level);
     Optional<StudentGroup> findByCode(String code);
     boolean existsByCode(String code);
 }

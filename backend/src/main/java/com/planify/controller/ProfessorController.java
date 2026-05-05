@@ -1,6 +1,7 @@
 package com.planify.controller;
 
 import com.planify.dto.ProfessorDto;
+import com.planify.dto.ProfessorPreferenceDto;
 import com.planify.service.ProfessorService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -47,6 +48,27 @@ public class ProfessorController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         professorService.deleteProfessor(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/preferences")
+    @Operation(summary = "Get professor timeslot preferences (avoided slots)")
+    public ResponseEntity<List<ProfessorPreferenceDto>> getPreferences(@PathVariable Long id) {
+        return ResponseEntity.ok(professorService.getPreferences(id));
+    }
+
+    @PostMapping("/{id}/preferences/{timeSlotId}")
+    @Operation(summary = "Add an avoided timeslot preference for a professor")
+    public ResponseEntity<ProfessorPreferenceDto> addPreference(@PathVariable Long id,
+                                                                 @PathVariable Long timeSlotId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(professorService.addPreference(id, timeSlotId));
+    }
+
+    @DeleteMapping("/{id}/preferences/{timeSlotId}")
+    @Operation(summary = "Remove an avoided timeslot preference for a professor")
+    public ResponseEntity<Void> removePreference(@PathVariable Long id,
+                                                  @PathVariable Long timeSlotId) {
+        professorService.removePreference(id, timeSlotId);
         return ResponseEntity.noContent().build();
     }
 }

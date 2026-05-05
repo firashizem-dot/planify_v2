@@ -13,4 +13,5 @@ public class GenerateScheduleRequest {
     @NotBlank
     private String academicYear;
     private Integer solveSeconds = 30;
+    private String level;
 }

@@ -62,6 +62,7 @@ public class SubjectService {
         subject.setCourseType(dto.getCourseType());
         subject.setHoursPerWeek(dto.getHoursPerWeek());
         subject.setLevel(dto.getLevel());
+        subject.setSemester(dto.getSemester());
         subject.setDescription(dto.getDescription());
         Department dept = departmentRepository.findById(dto.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Department", dto.getDepartmentId()));
@@ -76,6 +77,7 @@ public class SubjectService {
         dto.setCourseType(subject.getCourseType());
         dto.setHoursPerWeek(subject.getHoursPerWeek());
         dto.setLevel(subject.getLevel());
+        dto.setSemester(subject.getSemester());
         dto.setDescription(subject.getDescription());
         dto.setDepartmentId(subject.getDepartment().getId());
         dto.setDepartmentName(subject.getDepartment().getName());

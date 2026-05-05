@@ -22,5 +22,6 @@ public class SubjectDto {
     @NotNull
     private BigDecimal hoursPerWeek;
     private String level;
+    private String semester;
     private String description;
 }

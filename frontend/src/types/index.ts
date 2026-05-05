@@ -48,6 +48,7 @@ export interface Subject {
   courseType: CourseType;
   hoursPerWeek: number;
   level?: string;
+  semester?: string;
   description?: string;
 }
 
@@ -78,6 +79,15 @@ export interface TimeSlot {
   startTime: string;
   endTime: string;
   departmentId: number;
+}
+
+export interface ProfessorPreference {
+  id: number;
+  professorId: number;
+  timeSlotId: number;
+  dayOfWeek: string;
+  startTime: string;
+  endTime: string;
 }
 
 export interface Schedule {
