@@ -118,6 +118,7 @@ public class ScheduleService {
         dto.setHardScore(schedule.getHardScore());
         dto.setSoftScore(schedule.getSoftScore());
         dto.setSolveDurationMs(schedule.getSolveDurationMs());
+        dto.setConstraintViolations(schedule.getConstraintViolations());
         dto.setCreatedAt(schedule.getCreatedAt());
         dto.setUpdatedAt(schedule.getUpdatedAt());
         return dto;

@@ -47,6 +47,9 @@ public class Schedule {
     @Column(name = "solve_duration_ms")
     private Long solveDurationMs;
 
+    @Column(name = "constraint_violations", columnDefinition = "TEXT")
+    private String constraintViolations;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_id")
     private User createdBy;

@@ -81,6 +81,17 @@ export interface TimeSlot {
   departmentId: number;
 }
 
+export interface Student {
+  id: number;
+  userId: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  studentGroupId: number;
+  studentGroupName: string;
+  groupLevel?: string;
+}
+
 export interface ProfessorPreference {
   id: number;
   professorId: number;
@@ -100,6 +111,7 @@ export interface Schedule {
   hardScore: number;
   softScore: number;
   solveDurationMs?: number;
+  constraintViolations?: string;
   createdAt: string;
   updatedAt: string;
 }

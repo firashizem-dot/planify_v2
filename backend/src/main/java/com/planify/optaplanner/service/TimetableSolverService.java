@@ -11,6 +11,8 @@ import com.planify.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.optaplanner.core.api.score.buildin.hardsoft.HardSoftScore;
+import org.optaplanner.core.api.score.constraint.ConstraintMatchTotal;
+import org.optaplanner.core.api.solver.SolutionManager;
 import org.optaplanner.core.api.solver.SolverFactory;
 import org.optaplanner.core.config.solver.SolverConfig;
 import org.optaplanner.core.config.solver.termination.TerminationConfig;
@@ -96,9 +98,12 @@ public class TimetableSolverService {
         HardSoftScore score = solution.getScore();
         log.info("Solve completed in {}ms. Score: {}", durationMs, score);
 
+        // Capture constraint violations when hard score < 0
+        String violations = buildViolationsSummary(solverFactory, solution, score);
+
         // Persist the solution
         return persistSolution(solution, dept, request.getSemester(), request.getAcademicYear(),
-                               score, durationMs, createdBy);
+                               score, durationMs, violations, createdBy);
     }
 
     /**
@@ -148,6 +153,29 @@ public class TimetableSolverService {
         return lessons;
     }
 
+    private String buildViolationsSummary(SolverFactory<TimeTable> solverFactory,
+                                           TimeTable solution, HardSoftScore score) {
+        if (score.hardScore() >= 0) return null;
+        try {
+            SolutionManager<TimeTable, HardSoftScore> solutionManager = SolutionManager.create(solverFactory);
+            var explanation = solutionManager.explain(solution);
+            StringBuilder sb = new StringBuilder();
+            for (ConstraintMatchTotal<HardSoftScore> total : explanation.getConstraintMatchTotalMap().values()) {
+                HardSoftScore constraintScore = total.getScore();
+                if (constraintScore.hardScore() < 0) {
+                    if (sb.length() > 0) sb.append("; ");
+                    sb.append(total.getConstraintName())
+                      .append(" (").append(Math.abs(constraintScore.hardScore())).append(" violation")
+                      .append(Math.abs(constraintScore.hardScore()) > 1 ? "s" : "").append(")");
+                }
+            }
+            return sb.length() > 0 ? sb.toString() : null;
+        } catch (Exception e) {
+            log.warn("Could not compute constraint violations: {}", e.getMessage());
+            return null;
+        }
+    }
+
     private SolverFactory<TimeTable> buildSolverFactory(int solveSeconds) {
         SolverConfig config = new SolverConfig()
                 .withSolutionClass(TimeTable.class)
@@ -160,7 +188,7 @@ public class TimetableSolverService {
 
     private Schedule persistSolution(TimeTable solution, Department dept, String semester,
                                       String academicYear, HardSoftScore score,
-                                      long durationMs, User createdBy) {
+                                      long durationMs, String violations, User createdBy) {
         // Create or update schedule record
         Schedule schedule = Schedule.builder()
                 .department(dept)
@@ -170,6 +198,7 @@ public class TimetableSolverService {
                 .hardScore(score.hardScore())
                 .softScore(score.softScore())
                 .solveDurationMs(durationMs)
+                .constraintViolations(violations)
                 .createdBy(createdBy)
                 .build();
         schedule = scheduleRepository.save(schedule);

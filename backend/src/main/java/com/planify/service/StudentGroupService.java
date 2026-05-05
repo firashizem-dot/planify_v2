@@ -60,7 +60,7 @@ public class StudentGroupService {
         group.setName(dto.getName());
         group.setCode(dto.getCode());
         group.setLevel(dto.getLevel());
-        group.setStudentCount(dto.getStudentCount() != null ? dto.getStudentCount() : 0);
+        // studentCount is managed by StudentService based on enrolled students — don't override here
         Department dept = departmentRepository.findById(dto.getDepartmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Department", dto.getDepartmentId()));
         group.setDepartment(dept);

@@ -21,6 +21,7 @@ public class ScheduleDto {
     private Integer hardScore;
     private Integer softScore;
     private Long solveDurationMs;
+    private String constraintViolations;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

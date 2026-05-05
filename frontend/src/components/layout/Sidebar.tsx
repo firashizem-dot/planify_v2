@@ -4,7 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Users, BookOpen, Building2, CalendarDays,
   Clock, GraduationCap, Settings, LogOut, ChevronLeft, ChevronRight,
-  UserCog, Sparkles
+  UserCog, Sparkles, UserRound
 } from "lucide-react";
 import { useState } from "react";
 import { useAuthStore } from "@/store/authStore";
@@ -27,6 +27,7 @@ const navItems: NavItem[] = [
   { label: "Matières",        href: "/department/subjects",   icon: BookOpen, roles: ["ADMIN", "DEPARTMENT_HEAD"] },
   { label: "Salles",          href: "/department/classrooms", icon: Building2, roles: ["ADMIN", "DEPARTMENT_HEAD"] },
   { label: "Groupes",         href: "/department/groups",     icon: GraduationCap, roles: ["ADMIN", "DEPARTMENT_HEAD"] },
+  { label: "Étudiants",       href: "/department/students",   icon: UserRound, roles: ["ADMIN", "DEPARTMENT_HEAD"] },
   { label: "Créneaux",        href: "/department/timeslots",  icon: Clock,   roles: ["DEPARTMENT_HEAD"] },
   { label: "Emplois du temps",href: "/department/timetable",  icon: CalendarDays, roles: ["DEPARTMENT_HEAD"] },
   { label: "Mon EDT",         href: "/professor",     icon: CalendarDays,   roles: ["PROFESSOR"] },

@@ -99,6 +99,16 @@ export const groupApi = {
   delete: (id: number) => api.delete(`/api/groups/${id}`),
 };
 
+// Students
+export const studentApi = {
+  getAll: (groupId?: number) =>
+    api.get('/api/students', { params: groupId ? { groupId } : {} }),
+  getById: (id: number) => api.get(`/api/students/${id}`),
+  create: (data: unknown) => api.post('/api/students', data),
+  update: (id: number, data: unknown) => api.put(`/api/students/${id}`, data),
+  delete: (id: number) => api.delete(`/api/students/${id}`),
+};
+
 // Time Slots
 export const timeslotApi = {
   getByDepartment: (departmentId: number) =>

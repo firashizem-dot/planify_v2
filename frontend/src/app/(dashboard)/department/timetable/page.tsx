@@ -198,7 +198,9 @@ export default function TimetablePage() {
                         <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[s.status]}`}>{s.status}</span>
                         <span className="text-xs text-gray-400">Score: {s.hardScore}H / {s.softScore}S</span>
                         {s.hardScore < 0 && (
-                          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-600">Contraintes violées</span>
+                          <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-red-100 text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3" /> Contraintes violées
+                          </span>
                         )}
                         {s.solveDurationMs && <span className="text-xs text-gray-400">({formatDuration(s.solveDurationMs)})</span>}
                       </div>
@@ -229,6 +231,25 @@ export default function TimetablePage() {
             </div>
           )}
         </div>
+
+        {/* Constraint violations detail */}
+        {selected && selected.hardScore < 0 && selected.constraintViolations && (
+          <div className="planify-card border border-red-200 bg-red-50 animate-fade-in">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-red-700 mb-2">Contraintes non satisfaites</p>
+                <div className="flex flex-wrap gap-2">
+                  {selected.constraintViolations.split(";").map(v => v.trim()).filter(Boolean).map((v, i) => (
+                    <span key={i} className="text-xs bg-red-100 text-red-700 px-2.5 py-1 rounded-lg font-medium border border-red-200">
+                      {v}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Per-group timetable views */}
         {selected && sessions.length > 0 && (
