@@ -1,0 +1,184 @@
+{
+  "_lisez-moi": "Corps JSON bruts de la campagne condensée. Méthode, URL et autorisation indiquées pour chaque requête. baseUrl = http://localhost:8080. Mot de passe des comptes seed : Admin123!",
+  "Tokens (Postman, avant Planify-57 et 27)": [
+    {
+      "requete": "POST {{baseUrl}}/api/auth/login",
+      "auth": "aucune",
+      "body": {
+        "email": "il1.01@planify.tn",
+        "password": "Admin123!"
+      },
+      "note": "copier token → tokenStudent"
+    },
+    {
+      "requete": "POST {{baseUrl}}/api/auth/login",
+      "auth": "aucune",
+      "body": {
+        "email": "benali.ahmed@planify.com",
+        "password": "Admin123!"
+      },
+      "note": "copier token → tokenHeadInfo"
+    }
+  ],
+  "Planify-57 · Table de décision (Postman)": [
+    {
+      "regle": "R1",
+      "requete": "POST {{baseUrl}}/api/auth/login",
+      "auth": "aucune",
+      "body": {
+        "email": "admin@planify.com",
+        "password": "Admin123!"
+      },
+      "attendu": "200, twoFactorRequired=false, token"
+    },
+    {
+      "regle": "R2",
+      "requete": "POST {{baseUrl}}/api/auth/login",
+      "auth": "aucune",
+      "body": {
+        "email": "admin@planify.com",
+        "password": "MauvaisMotDePasse1!"
+      },
+      "attendu": "401"
+    },
+    {
+      "regle": "R3",
+      "requete": "POST {{baseUrl}}/api/auth/login",
+      "auth": "aucune",
+      "body": {
+        "email": "inconnu@planify.com",
+        "password": "Admin123!"
+      },
+      "attendu": "401, même message que R2"
+    }
+  ],
+  "Planify-27 · Matrice des droits (Postman)": [
+    {
+      "requete": "POST {{baseUrl}}/api/schedules/999999/publish",
+      "auth": "Bearer tokenStudent",
+      "body": null,
+      "attendu": "403 (échec connu D1 : 404)"
+    },
+    {
+      "requete": "POST {{baseUrl}}/api/schedules/999999/validate",
+      "auth": "Bearer tokenStudent",
+      "body": null,
+      "attendu": "403 (échec connu D1 : 404)"
+    },
+    {
+      "requete": "DELETE {{baseUrl}}/api/schedules/999999",
+      "auth": "Bearer tokenStudent",
+      "body": null,
+      "attendu": "403 (échec connu D1 : 404)"
+    },
+    {
+      "requete": "POST {{baseUrl}}/api/schedules/generate",
+      "auth": "Bearer tokenStudent",
+      "body": {
+        "departmentId": 1,
+        "semester": "S1",
+        "academicYear": "2025-2026",
+        "solveSeconds": 5
+      },
+      "attendu": "403"
+    },
+    {
+      "requete": "GET {{baseUrl}}/api/admin/department-heads",
+      "auth": "Bearer tokenStudent",
+      "body": null,
+      "attendu": "403"
+    },
+    {
+      "requete": "GET {{baseUrl}}/api/admin/departments",
+      "auth": "Bearer tokenHeadInfo",
+      "body": null,
+      "attendu": "403"
+    },
+    {
+      "requete": "GET {{baseUrl}}/api/professors",
+      "auth": "aucune",
+      "body": null,
+      "attendu": "401 (échec connu D6 : 403)"
+    }
+  ],
+  "Planify-43 · Injection SQL (PowerShell, pas Postman)": [
+    {
+      "requete": "POST http://localhost:8080/api/auth/login",
+      "auth": "aucune",
+      "body": {
+        "email": "' OR '1'='1",
+        "password": "x"
+      },
+      "attendu": "400 Validation Failed, jamais 200",
+      "commande": [
+        "$body = @{ email = \"' OR '1'='1\"; password = \"x\" } | ConvertTo-Json",
+        "try { Invoke-RestMethod -Method Post -Uri http://localhost:8080/api/auth/login -ContentType 'application/json' -Body $body } catch { $_.Exception.Response.StatusCode.value__; $_.ErrorDetails.Message }"
+      ]
+    }
+  ],
+  "Planify-35 · Transition interdite (Swagger UI, pas Postman)": [
+    {
+      "requete": "POST /api/schedules/{id}/publish",
+      "auth": "Authorize → Bearer <token chef INFO>",
+      "body": null,
+      "attendu": "400 « Only VALIDATED schedules can be published » (EDT GENERATED)"
+    },
+    {
+      "requete": "POST /api/schedules/{id}/validate (2 fois)",
+      "auth": "Bearer <token chef INFO>",
+      "body": null,
+      "attendu": "1er : 200 VALIDATED ; 2e : 400 « Only GENERATED schedules can be validated »"
+    }
+  ],
+  "Planify-74 · Génération (navigateur ; corps envoyé par l'UI, pour information)": [
+    {
+      "requete": "POST {{baseUrl}}/api/schedules/generate",
+      "auth": "Bearer tokenHeadInfo",
+      "body": {
+        "departmentId": 1,
+        "semester": "S1",
+        "academicYear": "2025-2026",
+        "solveSeconds": 30,
+        "level": "L1"
+      },
+      "attendu": "201 GENERATED, hardScore 0, 30–40 s"
+    }
+  ],
+  "Planify-86 / 67 · Newman (automatisé)": [
+    {
+      "commande": "npx newman run Planify-campagne-condensee.postman_collection.json --folder \"Smoke · Planify-86 (Newman)\"",
+      "attendu": "toutes les assertions passent"
+    },
+    {
+      "commande": "npx newman run Planify-campagne-condensee.postman_collection.json --folder \"Performance · Planify-67 (Newman -n 10)\" -n 10",
+      "attendu": "10/10 réponses < 3000 ms"
+    }
+  ],
+  "Planify-8 / Planify-6 · JUnit (automatisé, unitaire)": [
+    {
+      "commande": "docker run --rm -v \"${PWD}\\backend:/app\" -v planify-m2:/root/.m2 -w /app maven:3.9.9-eclipse-temurin-17 mvn -B test -Dtest=TimeTableConstraintProviderTest",
+      "attendu": "Tests run: 7, Failures: 0"
+    },
+    {
+      "commande": "docker run --rm -v \"${PWD}\\backend:/app\" -v planify-m2:/root/.m2 -w /app maven:3.9.9-eclipse-temurin-17 mvn -B test -Dtest=ScheduleServiceTest",
+      "attendu": "Tests run: 5, Failures: 0"
+    }
+  ],
+  "Planify-78 · JMeter (automatisé, charge)": [
+    {
+      "requete": "POST http://localhost:8080/api/auth/login × 250 (50 utilisateurs × 5 boucles)",
+      "body": {
+        "email": "il1.07@planify.tn",
+        "password": "Admin123!"
+      },
+      "note": "email tiré au hasard entre il1.01 et il1.25 par le script Groovy",
+      "attendu": "0 % d'erreur, p95 < 2000 ms"
+    },
+    {
+      "commande": "jmeter -n -t planify-charge-login.jmx -l resultats.jtl -e -o rapport-jmeter"
+    },
+    {
+      "commande_docker": "docker run --rm -v \"${PWD}:/jm\" -w /jm justb4/jmeter -n -t planify-charge-login.jmx -Jhost=host.docker.internal -l resultats.jtl -e -o rapport-jmeter"
+    }
+  ]
+}
